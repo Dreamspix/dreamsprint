@@ -1,0 +1,827 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dreams Print – Bestellung</title>
+  <style>
+    :root {
+      --bg:#f5f6f7; --card:#ffffff; --text:#111827; --muted:#6b7280;
+      --line:rgba(17,24,39,.10); --shadow:0 18px 45px rgba(17,24,39,.10);
+      --primary:#4241DD; --accent:#EE385F; --ok:#16a34a; --whatsapp:#25D366;
+      --danger-bg:#fee2e2; --danger-text:#991b1b;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      background: radial-gradient(1200px 600px at 15% 0%, rgba(66,65,221,.08), transparent 60%),
+                  radial-gradient(1000px 500px at 90% 10%, rgba(238,56,95,.08), transparent 55%),
+                  var(--bg);
+      color:var(--text);
+      -webkit-font-smoothing:antialiased;
+    }
+    .wrap{max-width:1180px;margin:28px auto;padding:0 16px 40px}
+    .top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+    .brand{display:flex;align-items:center;gap:12px;min-width:280px}
+    .brand img{height:46px}
+    .brand h1{margin:0;font-size:20px;letter-spacing:-.01em}
+    .brand .sub{font-size:13px;color:var(--muted);margin-top:2px}
+    .tabs{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .chip{
+      border:1px solid var(--line);
+      background:rgba(255,255,255,.75);
+      backdrop-filter:blur(10px);
+      padding:10px 14px;border-radius:999px;cursor:pointer;font-weight:650;
+      transition:transform .08s ease;
+    }
+    .chip:hover{transform:translateY(-1px)}
+    .chip.active{background:linear-gradient(180deg, rgba(66,65,221,.16), rgba(66,65,221,.06));border-color:rgba(66,65,221,.35)}
+    .chip.whatsapp{background:var(--whatsapp);border-color:var(--whatsapp);color:#06210f;font-weight:750}
+    .card{background:rgba(255,255,255,.80);backdrop-filter:blur(14px);border:1px solid var(--line);border-radius:22px;padding:18px;box-shadow:var(--shadow)}
+    .hint{margin:0 0 14px;color:var(--muted);line-height:1.4;font-size:14px}
+    .section-title{margin:18px 0 10px;font-size:14px;color:var(--muted);font-weight:700}
+    label{display:block;font-size:13px;color:var(--muted);margin:6px 0;font-weight:700}
+    input,select,textarea{width:100%;padding:12px 14px;border-radius:14px;border:1px solid rgba(17,24,39,.12);background:rgba(255,255,255,.92);font-size:14px}
+    textarea{min-height:92px;resize:vertical}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .full{grid-column:1/-1}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    button{border:1px solid rgba(17,24,39,.12);background:rgba(255,255,255,.92);padding:12px 14px;border-radius:14px;cursor:pointer;font-weight:800;transition:transform .08s ease}
+    button:hover{transform:translateY(-1px)}
+    button.primary{background:linear-gradient(180deg, rgba(66,65,221,.95), rgba(66,65,221,.86));border-color:rgba(66,65,221,.55);color:#fff}
+    button.danger{background:var(--danger-bg);color:var(--danger-text);border-color:rgba(153,27,27,.18)}
+    .small{font-size:13px;color:var(--muted)}
+    .ok{color:var(--ok);font-weight:900}
+    .hidden{display:none}
+
+    .gallery{display:grid;grid-template-columns:repeat(6,1fr);gap:10px}
+    .product-card{border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.88);padding:10px;cursor:pointer;transition:transform .08s ease,border-color .15s ease;min-height:142px;display:flex;flex-direction:column;gap:8px}
+    .product-card:hover{transform:translateY(-1px)}
+    .product-card.selected{border-color:rgba(66,65,221,.45)}
+    .thumb{width:100%;aspect-ratio:1.1/1;border-radius:14px;background:#fff;border:1px solid rgba(17,24,39,.08);overflow:hidden;display:flex;align-items:center;justify-content:center}
+    .thumb img{width:100%;height:100%;object-fit:cover}
+    .pname{font-weight:900;font-size:13px}
+    .pmeta{font-size:12px;color:var(--muted);display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+    .dot{width:10px;height:10px;border-radius:999px;border:1px solid rgba(17,24,39,.15);display:inline-block}
+
+    .templates{display:grid;grid-template-columns:repeat(4, 1fr);gap:10px}
+    .tpl{border:1px solid var(--line);border-radius:18px;background:rgba(255,255,255,.88);padding:10px;cursor:pointer;transition:transform .08s ease,border-color .15s ease}
+    .tpl:hover{transform:translateY(-1px)}
+    .tpl.selected{border-color:rgba(66,65,221,.45);box-shadow:0 14px 28px rgba(66,65,221,.10)}
+    .tpl .previews{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .tpl .previews img{width:100%;aspect-ratio:3/2;object-fit:cover;border-radius:14px;border:1px solid rgba(17,24,39,.08);background:#fff}
+    .tpl .name{margin-top:8px;font-weight:900;font-size:13px}
+    .note{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.35}
+
+    .table-wrap{overflow:auto;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.6)}
+    table{width:100%;border-collapse:collapse;min-width:920px}
+    th,td{padding:10px 10px;border-bottom:1px solid rgba(17,24,39,.08);text-align:left;vertical-align:top;font-size:13px}
+    th{color:var(--muted);font-weight:800}
+    tr:last-child td{border-bottom:0}
+
+    .pricebox{margin-top:14px;display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .pricebox .item{background:rgba(255,255,255,.72);border:1px solid var(--line);border-radius:18px;padding:12px}
+    .pricebox .val{font-size:16px;font-weight:950;margin-top:4px}
+
+    @media (max-width: 980px) {
+      .gallery{grid-template-columns:repeat(3,1fr)}
+      .templates{grid-template-columns:repeat(2,1fr)}
+      .pricebox{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width: 640px) {
+      .wrap{margin:18px auto}
+      .brand img{height:40px}
+      .brand h1{font-size:18px}
+      .grid{grid-template-columns:1fr}
+      .gallery{grid-template-columns:repeat(2,1fr)}
+      .templates{grid-template-columns:1fr}
+      .pricebox{grid-template-columns:1fr}
+      button{width:100%}
+    }
+  
+    .chip{border:1px solid var(--line);background:rgba(255,255,255,.75);padding:10px 14px;border-radius:999px;cursor:pointer;font-weight:800}
+    .chip.active{border-color:rgba(66,65,221,.40); background:rgba(66,65,221,.10);}
+    .tag{margin-left:6px;font-size:11px;padding:4px 8px;border-radius:999px;border:1px solid rgba(17,24,39,.10);background:rgba(255,255,255,.75);font-weight:900}
+    .tag.soft{ background:rgba(238,56,95,.10); border-color:rgba(238,56,95,.18); }
+    .gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+    @media (max-width: 980px){ .gallery{grid-template-columns:repeat(2,1fr)} }
+    @media (max-width: 520px){ .gallery{grid-template-columns:1fr} }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div class="brand">
+        <img src="logo.png" alt="Dreams Print Logo">
+        <div>
+          <h1>Bestellung</h1>
+          <div class="sub">WhatsApp: +41 79 723 16 98</div>
+        </div>
+      </div>
+      <div class="tabs">
+        <button class="chip active" id="tabOrder">Bestellen</button>
+        <button class="chip" id="tabAdmin">Admin</button>
+        <button class="chip whatsapp" id="btnWhatsAppChat">WhatsApp Chat</button>
+      </div>
+    </div>
+
+    <div class="card" id="viewOrder">
+      <p class="hint">
+        Wähle Produkt + Vorlage (Vorder-/Rückseite). Optional kannst du dein eigenes Design hochladen.
+        <b>Hinweis:</b> Auf GitHub Pages gibt es keinen Server — Datei-Uploads gehen nur, wenn du einen Formular‑Dienst nutzt.
+      <br><span class="note">Hoodie: 30.00 CHF/Stk • Lieferzeit: 15 Tage</span></p>
+
+      
+      <div class="section-title">1) Produkt auswählen</div>
+      <p class="hint">Tippe auf ein Produkt. Danach Größe, Menge und Druck-Notiz wählen. <span class="note">Hoodie: 30 CHF/Stk • Lieferzeit: 15 Tage</span></p>
+
+      <div class="row" style="margin-top:8px;margin-bottom:10px">
+        <button class="chip active" data-filter="all">Alle</button>
+        <button class="chip" data-filter="T-Shirt">T-Shirt</button>
+        <button class="chip" data-filter="Oversize">Oversize</button>
+        <button class="chip" data-filter="Polo">Polo</button>
+        <button class="chip" data-filter="Hoodie">Hoodie</button>
+      </div>
+
+      <div class="gallery" id="gallery">
+        <div class="product-card" data-kind="T-Shirt" data-product="T-Shirt" data-color="Schwarz">
+          <div class="thumb"><img src="images/tshirt-schwarz.webp" alt="T-Shirt Schwarz"></div>
+          <div class="pname">T-Shirt</div>
+          <div class="pmeta"><span class="dot" style="background:#111827"></span> Schwarz <span class="tag">25 CHF</span></div>
+        </div>
+
+        <div class="product-card" data-kind="T-Shirt" data-product="T-Shirt" data-color="Weiss">
+          <div class="thumb"><img src="images/tshirt-weiss.webp" alt="T-Shirt Weiss"></div>
+          <div class="pname">T-Shirt</div>
+          <div class="pmeta"><span class="dot" style="background:#ffffff"></span> Weiss <span class="tag">25 CHF</span></div>
+        </div>
+
+        
+        <div class="product-card" data-kind="Oversize" data-product="Oversize T-Shirt" data-color="Schwarz">
+          <div class="thumb"><img src="images/tshirt-oversize-schwarz.jpg" alt="Oversize T-Shirt Schwarz"></div>
+          <div class="pname">Oversize T-Shirt</div>
+          <div class="pmeta"><span class="dot" style="background:#111827"></span> Schwarz <span class="tag">25 CHF</span></div>
+        </div>
+
+        <div class="product-card" data-kind="Oversize" data-product="Oversize T-Shirt" data-color="Weiss">
+          <div class="thumb"><img src="images/tshirt-oversize-weiss.jpg" alt="Oversize T-Shirt Weiss"></div>
+          <div class="pname">Oversize T-Shirt</div>
+          <div class="pmeta"><span class="dot" style="background:#ffffff"></span> Weiss <span class="tag">25 CHF</span></div>
+        </div>
+
+        <div class="product-card" data-kind="Polo" data-product="Polo" data-color="Schwarz">
+          <div class="thumb"><img src="images/polo-schwarz.jpg" alt="Polo Schwarz"></div>
+          <div class="pname">Polo</div>
+          <div class="pmeta"><span class="dot" style="background:#111827"></span> Schwarz <span class="tag">25 CHF</span></div>
+        </div>
+
+        
+        <div class="product-card" data-kind="Oversize" data-product="Oversize T-Shirt" data-color="Schwarz">
+          <div class="thumb"><img src="images/tshirt-oversize-schwarz.jpg" alt="Oversize T-Shirt Schwarz"></div>
+          <div class="pname">Oversize T-Shirt</div>
+          <div class="pmeta"><span class="dot" style="background:#111827"></span> Schwarz <span class="tag">25 CHF</span></div>
+        </div>
+
+        <div class="product-card" data-kind="Oversize" data-product="Oversize T-Shirt" data-color="Weiss">
+          <div class="thumb"><img src="images/tshirt-oversize-weiss.jpg" alt="Oversize T-Shirt Weiss"></div>
+          <div class="pname">Oversize T-Shirt</div>
+          <div class="pmeta"><span class="dot" style="background:#ffffff"></span> Weiss <span class="tag">25 CHF</span></div>
+        </div>
+
+        <div class="product-card" data-kind="Polo" data-product="Polo" data-color="Weiss">
+          <div class="thumb"><img src="images/polo-weiss.webp" alt="Polo Weiss"></div>
+          <div class="pname">Polo</div>
+          <div class="pmeta"><span class="dot" style="background:#ffffff"></span> Weiss <span class="tag">25 CHF</span></div>
+        </div>
+
+        <div class="product-card" data-kind="Hoodie" data-product="Hoodie" data-color="Schwarz">
+          <div class="thumb"><img src="images/hoodie-schwarz.jpg" alt="Hoodie Schwarz"></div>
+          <div class="pname">Hoodie</div>
+          <div class="pmeta"><span class="dot" style="background:#111827"></span> Schwarz <span class="tag">30 CHF</span> <span class="tag soft">15 Tage</span></div>
+        </div>
+
+        <div class="product-card" data-kind="Hoodie" data-product="Hoodie" data-color="Weiss">
+          <div class="thumb"><img src="images/hoodie-weiss.jpg" alt="Hoodie Weiss"></div>
+          <div class="pname">Hoodie</div>
+          <div class="pmeta"><span class="dot" style="background:#ffffff"></span> Weiss <span class="tag">30 CHF</span> <span class="tag soft">15 Tage</span></div>
+        </div>
+      </div>
+<div class="section-title">2) Vorlage auswählen (4 Optionen – Vorder & Rückseite)</div>
+      <div class="templates" id="templates">
+
+        <div class="tpl" data-template="Vorlage 1">
+          <div class="previews">
+            <img src="templates/template1_front.svg" alt="Vorlage 1 Vorderseite">
+            <img src="templates/template1_back.svg" alt="Vorlage 1 Rückseite">
+          </div>
+          <div class="name">Vorlage 1</div>
+          <div class="note">Vorder- & Rückseite sind fest. Du kannst zusätzlich eigene Datei hochladen.</div>
+        </div>
+
+        <div class="tpl" data-template="Vorlage 2">
+          <div class="previews">
+            <img src="templates/template2_front.svg" alt="Vorlage 2 Vorderseite">
+            <img src="templates/template2_back.svg" alt="Vorlage 2 Rückseite">
+          </div>
+          <div class="name">Vorlage 2</div>
+          <div class="note">Vorder- & Rückseite sind fest. Du kannst zusätzlich eigene Datei hochladen.</div>
+        </div>
+
+        <div class="tpl" data-template="Vorlage 3">
+          <div class="previews">
+            <img src="templates/template3_front.svg" alt="Vorlage 3 Vorderseite">
+            <img src="templates/template3_back.svg" alt="Vorlage 3 Rückseite">
+          </div>
+          <div class="name">Vorlage 3</div>
+          <div class="note">Vorder- & Rückseite sind fest. Du kannst zusätzlich eigene Datei hochladen.</div>
+        </div>
+
+        <div class="tpl" data-template="Vorlage 4">
+          <div class="previews">
+            <img src="templates/template4_front.svg" alt="Vorlage 4 Vorderseite">
+            <img src="templates/template4_back.svg" alt="Vorlage 4 Rückseite">
+          </div>
+          <div class="name">Vorlage 4</div>
+          <div class="note">Vorder- & Rückseite sind fest. Du kannst zusätzlich eigene Datei hochladen.</div>
+        </div>
+      </div>
+
+      <div class="section-title">3) Eigene Vorlage hochladen (optional)</div>
+      <div class="grid">
+        <div class="full">
+          <label for="designFile">Datei (PNG/JPG/PDF//PSD)</label>
+          <input id="designFile" type="file" accept=".png,.jpg,.jpeg,.webp,.pdf,.,.psd" />
+          <div class="note" id="fileInfo">Noch keine Datei gewählt.</div>
+        </div>
+      </div>
+
+      <div class="section-title">4) Artikel hinzufügen</div>
+      <div class="grid">
+        <div>
+          <label for="produkt">Produkt</label>
+          <select id="produkt">
+            <option value="T-Shirt Normal">T-Shirt Normal</option>
+            <option value="T-Shirt Long">T-Shirt Long</option>
+            <option value="Polo">Polo</option>
+            <option value="Hoodie">Hoodie</option>
+          </select>
+        </div>
+        <div>
+          <label for="farbe">Farbe</label>
+          <select id="farbe">
+            <option value="Schwarz">Schwarz</option>
+            <option value="Weiss">Weiss</option>
+          </select>
+        </div>
+        <div>
+          <label for="groesse">Größe</label>
+          <select id="groesse">
+            <option value="S">S</option><option value="M" selected>M</option><option value="L">L</option><option value="XL">XL</option><option value="XXL">XXL</option>
+          </select>
+        </div>
+        <div>
+          <label for="menge">Menge</label>
+          <input id="menge" type="number" min="1" value="1" />
+        </div>
+        <div class="full">
+          <label for="druckNotiz">Druck‑Notiz (pro Artikel)</label>
+          <input id="druckNotiz" placeholder="z.B. Logo vorne, Name hinten..." />
+        </div>
+        <div class="full">
+          <button class="primary" id="btnAddItem">+ Artikel hinzufügen</button>
+        </div>
+      </div>
+
+      <div class="section-title">Warenkorb</div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Produkt</th><th>Farbe</th><th>Größe</th><th>Vorlage</th><th>Upload</th><th>Druck‑Notiz</th><th>Menge</th><th>Einzel</th><th>Total</th><th></th></tr></thead>
+          <tbody id="cartBody"></tbody>
+        </table>
+      </div>
+
+      <div class="section-title">Lieferung & Kunde</div>
+      <div class="grid">
+        <div class="full">
+          <label for="lieferart">Lieferung / Abholung</label>
+          <select id="lieferart">
+            <option value="Lieferung Schweiz">Lieferung (Schweiz) +9.90 CHF</option>
+            <option value="Abholung Buchrein">Abholung (Buchrein) 0 CHF</option>
+          </select>
+        </div>
+        <div class="full" id="adresseWrap">
+          <label for="adresse">Lieferadresse</label>
+          <input id="adresse" placeholder="Straße, PLZ Ort" />
+        </div>
+        <div class="full">
+          <label for="name">Name</label>
+          <input id="name" placeholder="Vorname Nachname" />
+        </div>
+        <div>
+          <label for="telefon">Telefon</label>
+          <input id="telefon" placeholder="+41 ..." />
+        </div>
+        <div>
+          <label for="email">E‑Mail (optional)</label>
+          <input id="email" type="email" placeholder="name@email.com" />
+        </div>
+        <div class="full">
+          <label for="zahlung">Zahlungsart</label>
+          <select id="zahlung">
+            <option value="TWINT">TWINT</option>
+            <option value="Bar bei Abholung">Bar bei Abholung</option>
+            <option value="Banküberweisung">Banküberweisung</option>
+          </select>
+        </div>
+        <div class="full">
+          <label for="notiz">Notiz (optional)</label>
+          <textarea id="notiz" placeholder="z.B. Wunschdatum, Bemerkungen..."></textarea>
+        </div>
+      </div>
+
+      <div class="pricebox" aria-live="polite">
+        <div class="item"><div class="small">Stückpreis‑Regel</div><div class="val" style="font-size:13px;color:var(--muted)">T-Shirt/Polo: 1–9 = 25 CHF/Stk • ab 10 = 20 CHF/Stk (10 = 200 CHF) • Hoodie: 30 CHF/Stk (15 Tage)</div></div>
+        <div class="item"><div class="small">Artikel total</div><div class="val" id="itemsTotal">CHF 0.00</div></div>
+        <div class="item"><div class="small">Versand</div><div class="val" id="shipping">CHF 0.00</div></div>
+        <div class="item"><div class="small">TOTAL</div><div class="val" id="grandTotal">CHF 0.00</div></div>
+      </div>
+
+      <div class="row">
+        <button class="primary" id="btnWhatsapp">Per WhatsApp senden</button>
+        <button id="btnCopy">Text kopieren</button>
+        <button class="danger" id="btnClearCart">Warenkorb leeren</button>
+      </div>
+
+      <div class="section-title">Online automatisch senden (E‑Mail Formular)</div>
+      <p class="hint">
+        In <code>index.html</code> musst du <b>__FORM_ENDPOINT__</b> durch die URL deines Formular‑Dienstes ersetzen.
+        Danach wird die Bestellung automatisch online gesendet.
+      </p>
+
+      <form id="onlineForm" method="POST" action="__FORM_ENDPOINT__">
+        <input type="hidden" name="subject" value="Dreams Print Bestellung">
+        <input type="hidden" name="orderText" id="orderTextField" value="">
+        <input type="hidden" name="orderNumber" id="orderNumberField" value="">
+        <input type="hidden" name="replyto" id="replytoField" value="">
+        <button class="primary" type="submit">Online senden</button>
+      </form>
+
+      <div class="small" id="status" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="card hidden" id="viewAdmin" style="margin-top:14px;">
+      <p class="hint">Admin: Bestellungen werden im Browser gespeichert (localStorage). Für echte Online‑Admin braucht es Server.</p>
+
+      <div class="grid">
+        <div class="full">
+          <label for="adminPass">Admin Passwort (optional)</label>
+          <input id="adminPass" type="password" placeholder="leer lassen, wenn du kein Passwort willst" />
+        </div>
+        <div class="full">
+          <button class="primary" id="btnAdminLogin">Öffnen</button>
+        </div>
+        <div class="full">
+          <label for="adminSearch">Suche</label>
+          <input id="adminSearch" placeholder="Bestellnr., Name, Telefon..." />
+        </div>
+      </div>
+
+      <div class="row">
+        <button id="btnExportCsv">CSV exportieren</button>
+        <button class="danger" id="btnClear">Alle löschen</button>
+      </div>
+
+      <div class="small" id="adminStatus" style="margin-top:10px;"></div>
+
+      <div class="table-wrap" style="margin-top:10px;">
+        <table>
+          <thead>
+            <tr>
+              <th>Bestellnr.</th><th>Datum</th><th>Status</th><th>Zahlung</th><th>Lieferart</th>
+              <th>Artikel</th><th>Total</th><th>Name</th><th>Telefon</th><th></th>
+            </tr>
+          </thead>
+          <tbody id="ordersBody"></tbody>
+        </table>
+      </div>
+      <div class="small" style="margin-top:10px;">Schreibweise: <b>T-Shirt</b></div>
+    </div>
+  </div>
+
+  <script>
+    const WHATSAPP_NUMBER = "41797231698";
+    const ADMIN_PASSWORD = "";
+    const STORAGE_KEY = "dreamsprint_orders_v4_templates";
+
+    const UNIT_PRICE_TS_NORMAL = 25;
+    const UNIT_PRICE_TS_10PLUS = 20;
+    const UNIT_PRICE_HOODIE = 30;
+    const SHIPPING_CH = 9.90;
+    const PICKUP_PLACE = "Buchrein";
+
+    const el = (id) => document.getElementById(id);
+    const chf = (n) => `CHF ${Number(n || 0).toFixed(2)}`;
+    const escapeHtml = (s) => String(s ?? "").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;");
+    const escapeCsv = (v) => {
+      const s = String(v ?? "");
+      const needs = /[",\n\r;]/.test(s);
+      const cleaned = s.replace(/"/g, '""');
+      return needs ? `"${cleaned}"` : cleaned;
+    };
+    const fmtDate = (iso) => { try { return new Date(iso).toLocaleString("de-CH"); } catch { return iso; } };
+
+    function loadOrders() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]"); } catch { return []; } }
+    function saveOrders(orders) { localStorage.setItem(STORAGE_KEY, JSON.stringify(orders)); }
+
+    function generateOrderNumber() {
+      const date = new Date();
+      const y = date.getFullYear();
+      const m = String(date.getMonth() + 1).padStart(2, "0");
+      const d = String(date.getDate()).padStart(2, "0");
+      const day = `${y}${m}${d}`;
+      const key = `order_counter_${day}`;
+      let counter = Number(localStorage.getItem(key) || 0) + 1;
+      localStorage.setItem(key, counter);
+      return `DP-${day}-${String(counter).padStart(4, "0")}`;
+    }
+
+    // Tabs
+    const tabOrder = el("tabOrder");
+    const tabAdmin = el("tabAdmin");
+    const viewOrder = el("viewOrder");
+    const viewAdmin = el("viewAdmin");
+
+    function showOrder() {
+      tabOrder.classList.add("active");
+      tabAdmin.classList.remove("active");
+      viewOrder.classList.remove("hidden");
+      viewAdmin.classList.add("hidden");
+    }
+    function showAdmin() {
+      tabAdmin.classList.add("active");
+      tabOrder.classList.remove("active");
+      viewAdmin.classList.remove("hidden");
+      viewOrder.classList.add("hidden");
+      if (!ADMIN_PASSWORD) { el("adminStatus").innerHTML = `<span class="ok">✔</span> Admin geöffnet.`; renderOrders(); }
+    }
+    tabOrder.addEventListener("click", showOrder);
+    tabAdmin.addEventListener("click", showAdmin);
+
+    el("btnWhatsAppChat").addEventListener("click", () => window.open(`https://wa.me/${WHATSAPP_NUMBER}`, "_blank"));
+
+    // Template selection
+    const templatesEl = el("templates");
+    let selectedTemplate = "Vorlage 1";
+    function selectTemplate(name) {
+      selectedTemplate = name;
+      [...templatesEl.querySelectorAll(".tpl")].forEach(t => t.classList.toggle("selected", t.dataset.template === name));
+    }
+    [...templatesEl.querySelectorAll(".tpl")].forEach(t => t.addEventListener("click", () => selectTemplate(t.dataset.template)));
+    selectTemplate("Vorlage 1");
+
+    // File
+    const designFile = el("designFile");
+    const fileInfo = el("fileInfo");
+    designFile.addEventListener("change", () => {
+      const f = designFile.files && designFile.files[0];
+      fileInfo.textContent = f ? `Datei gewählt: ${f.name} (${Math.round(f.size/1024)} KB)` : "Noch keine Datei gewählt.";
+    });
+
+    // Product selection
+    const produkt = el("produkt");
+    const farbe = el("farbe");
+    const groesse = el("groesse");
+    const menge = el("menge");
+    const druckNotiz = el("druckNotiz");
+
+    const gallery = el("gallery");
+    function selectProduct(p, c) { produkt.value = p; farbe.value = c; syncGallerySelectionFromDropdowns(); }
+    function syncGallerySelectionFromDropdowns() {
+      const p = produkt.value, c = farbe.value;
+      [...gallery.querySelectorAll(".product-card")].forEach(card => card.classList.toggle("selected", card.dataset.product === p && card.dataset.color === c));
+    }
+    [...gallery.querySelectorAll(".product-card")].forEach(card => card.addEventListener("click", () => selectProduct(card.dataset.product, card.dataset.color)));
+    produkt.addEventListener("change", syncGallerySelectionFromDropdowns);
+    farbe.addEventListener("change", syncGallerySelectionFromDropdowns);
+
+    // Customer fields
+    const lieferart = el("lieferart");
+    const adresse = el("adresse");
+    const adresseWrap = el("adresseWrap");
+    const name = el("name");
+    const telefon = el("telefon");
+    const email = el("email");
+    const zahlung = el("zahlung");
+    const notiz = el("notiz");
+
+    const statusEl = el("status");
+    const cartBody = el("cartBody");
+    const itemsTotalEl = el("itemsTotal");
+    const shippingEl = el("shipping");
+    const grandTotalEl = el("grandTotal");
+
+    let cart = [];
+
+    function updateAddressVisibility() { adresseWrap.classList.toggle("hidden", lieferart.value !== "Lieferung Schweiz"); }
+    lieferart.addEventListener("change", () => { updateAddressVisibility(); renderCart(); });
+
+    function isHoodieItem(it) {
+      return (it.produkt || "") === "Hoodie";
+    }
+
+    function calcTsUnitPriceByTotalQty(totalQtyNonHoodie) {
+      return (totalQtyNonHoodie >= 10) ? UNIT_PRICE_TS_10PLUS : UNIT_PRICE_TS_NORMAL;
+    }
+
+    function calcShipping() { return (lieferart.value === "Lieferung Schweiz") ? SHIPPING_CH : 0; }
+
+    function calcCartTotals() {
+      const totalQtyNonHoodie = cart.reduce((a, it) => a + (isHoodieItem(it) ? 0 : (Number(it.qty) || 0)), 0);
+      const tsUnit = calcTsUnitPriceByTotalQty(totalQtyNonHoodie);
+
+      let itemsTotal = 0;
+      let totalQty = 0;
+      let hasHoodie = false;
+
+      for (const it of cart) {
+        const qty = Number(it.qty) || 0;
+        totalQty += qty;
+        const unit = isHoodieItem(it) ? UNIT_PRICE_HOODIE : tsUnit;
+        if (isHoodieItem(it)) hasHoodie = true;
+        itemsTotal += qty * unit;
+      }
+
+      const ship = calcShipping();
+      return { totalQty, totalQtyNonHoodie, tsUnit, itemsTotal, ship, total: itemsTotal + ship, hasHoodie };
+    }
+
+    function renderCart() {
+      const t = calcCartTotals();
+      if (cart.length === 0) {
+        cartBody.innerHTML = `<tr><td colspan="10" class="small">Noch keine Artikel. Oben hinzufügen.</td></tr>`;
+      } else {
+        cartBody.innerHTML = cart.map((it, idx) => {
+          const unit = ((it.produkt||'')==='Hoodie') ? UNIT_PRICE_HOODIE : t.tsUnit;
+          const lineTotal = (Number(it.qty)||0) * unit;
+          return `
+            <tr>
+              <td>${escapeHtml(it.produkt)}</td>
+              <td>${escapeHtml(it.farbe)}</td>
+              <td>${escapeHtml(it.groesse)}</td>
+              <td>${escapeHtml(it.template)}</td>
+              <td>${escapeHtml(it.uploadName || "-")}</td>
+              <td>${escapeHtml(it.druckNotiz || "-")}</td>
+              <td>${escapeHtml(it.qty)}</td>
+              <td>${escapeHtml(chf(((it.produkt||'')==='Hoodie') ? UNIT_PRICE_HOODIE : t.tsUnit))}</td>
+              <td>${escapeHtml(chf(lineTotal))}</td>
+              <td><button class="danger" data-remove="${idx}">Entfernen</button></td>
+            </tr>`;
+        }).join("");
+
+        [...cartBody.querySelectorAll("button[data-remove]")].forEach(btn => btn.addEventListener("click", () => {
+          const idx = Number(btn.getAttribute("data-remove"));
+          cart.splice(idx, 1);
+          renderCart();
+        }));
+      }
+      itemsTotalEl.textContent = chf(t.itemsTotal);
+      shippingEl.textContent = chf(t.ship);
+      grandTotalEl.textContent = chf(t.total);
+    }
+
+    function validateOrder() {
+      if (cart.length === 0) return "Bitte mindestens 1 Artikel hinzufügen.";
+      if (!name.value.trim()) return "Bitte Name eintragen.";
+      if (!telefon.value.trim()) return "Bitte Telefon eintragen.";
+      if (lieferart.value === "Lieferung Schweiz" && !adresse.value.trim()) return "Bitte Lieferadresse eintragen.";
+      return "";
+    }
+
+    el("btnAddItem").addEventListener("click", () => {
+      const qty = Math.max(1, Number(menge.value || 1));
+      const f = designFile.files && designFile.files[0];
+      cart.push({
+        produkt: produkt.value,
+        farbe: farbe.value,
+        groesse: groesse.value,
+        qty,
+        template: selectedTemplate,
+        uploadName: f ? f.name : "",
+        druckNotiz: (druckNotiz.value || "").trim(),
+      });
+      druckNotiz.value = "";
+      statusEl.innerHTML = `<span class="ok">✔</span> Artikel hinzugefügt.`;
+      renderCart();
+    });
+
+    el("btnClearCart").addEventListener("click", () => {
+      if (!confirm("Warenkorb wirklich leeren?")) return;
+      cart = [];
+      renderCart();
+      statusEl.textContent = "Warenkorb geleert.";
+    });
+
+    function buildOrderObject() {
+      const t = calcCartTotals();
+      const isDelivery = lieferart.value === "Lieferung Schweiz";
+      const f = designFile.files && designFile.files[0];
+      return {
+        orderNumber: generateOrderNumber(),
+        createdAt: new Date().toISOString(),
+        status: "offen",
+        zahlung: zahlung.value,
+        lieferart: lieferart.value,
+        shipping: t.ship,
+        tsUnitPrice: t.tsUnit,
+        totalQty: t.totalQty,
+        totalQtyNonHoodie: t.totalQtyNonHoodie,
+        itemsTotal: t.itemsTotal,
+        total: t.total,
+        template: selectedTemplate,
+        uploadFile: f ? { name: f.name, size: f.size } : null,
+        items: cart.slice(),
+        name: name.value.trim(),
+        telefon: telefon.value.trim(),
+        email: email.value.trim(),
+        adresse: isDelivery ? adresse.value.trim() : `Abholung: ${PICKUP_PLACE}`,
+        notiz: notiz.value.trim()
+      };
+    }
+
+    function buildTextFromOrder(o) {
+      const lines = [
+        `🧾 *Bestellung ${o.orderNumber} (Dreams Print)*`,
+        "",
+        `Vorlage: ${o.template}`,
+        `Upload: ${o.uploadFile ? (o.uploadFile.name + " (" + Math.round(o.uploadFile.size/1024) + " KB)") : "-"}`,
+        "",
+        "*Artikel:*",
+        ...o.items.map((it) => `- ${it.qty}x ${it.produkt} / ${it.farbe} / ${it.groesse} | Vorlage: ${it.template}` + (it.uploadName ? ` | Upload: ${it.uploadName}` : "") + (it.druckNotiz ? ` | Druck: ${it.druckNotiz}` : "")),
+        "",
+        `Gesamtmenge: ${o.totalQty}`,
+        `T-Shirt/Polo Stückpreis: ${chf(o.tsUnitPrice)} ${o.totalQtyNonHoodie>=10 ? "(ab 10 Stück)" : "(1–9 Stück)"}`,
+        `Hoodie Stückpreis: ${chf(30)} (Lieferzeit: 15 Tage)`,
+        `Artikel total: ${chf(o.itemsTotal)}`,
+        `Lieferart: ${o.lieferart}`,
+        `Versand: ${chf(o.shipping)}`,
+        `TOTAL: ${chf(o.total)}`,
+        `Zahlungsart: ${o.zahlung}`,
+        "",
+        `Name: ${o.name}`,
+        `Telefon: ${o.telefon}`,
+        `E‑Mail: ${o.email || "-"}`,
+        `Adresse/Abholung: ${o.adresse}`,
+        `Notiz: ${o.notiz || "-"}`,
+      ];
+      return lines.join("\n");
+    }
+
+    el("btnWhatsapp").addEventListener("click", () => {
+      const err = validateOrder();
+      if (err) { statusEl.textContent = err; return; }
+      const order = buildOrderObject();
+      window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(buildTextFromOrder(order))}`, "_blank");
+    });
+
+    el("btnCopy").addEventListener("click", async () => {
+      const err = validateOrder();
+      if (err) { statusEl.textContent = err; return; }
+      const order = buildOrderObject();
+      const text = buildTextFromOrder(order);
+      try { await navigator.clipboard.writeText(text); statusEl.innerHTML = `<span class="ok">✔</span> Text kopiert.`; }
+      catch { prompt("Kopiere den Text:", text); }
+    });
+
+    // Online form
+    const onlineForm = el("onlineForm");
+    const orderTextField = el("orderTextField");
+    const orderNumberField = el("orderNumberField");
+    const replytoField = el("replytoField");
+
+    onlineForm.addEventListener("submit", (e) => {
+      const err = validateOrder();
+      if (err) { e.preventDefault(); statusEl.textContent = err; return; }
+
+      const order = buildOrderObject();
+      const text = buildTextFromOrder(order);
+      orderTextField.value = text;
+      orderNumberField.value = order.orderNumber;
+      replytoField.value = order.email || "";
+
+      // Save locally
+      const orders = loadOrders();
+      orders.unshift(order);
+      saveOrders(orders);
+
+      if (onlineForm.action.includes("__FORM_ENDPOINT__")) {
+        e.preventDefault();
+        statusEl.innerHTML = "❗ Bitte zuerst <b>__FORM_ENDPOINT__</b> in index.html ersetzen (Formular‑Dienst).";
+      }
+    });
+
+    // Admin
+    const adminPass = el("adminPass");
+    const adminStatus = el("adminStatus");
+    const ordersBody = el("ordersBody");
+    const adminSearch = el("adminSearch");
+
+    function isAdminAllowed() { return !ADMIN_PASSWORD || adminPass.value === ADMIN_PASSWORD; }
+
+    el("btnAdminLogin").addEventListener("click", () => {
+      if (!isAdminAllowed()) { adminStatus.textContent = "Falsches Passwort."; ordersBody.innerHTML = ""; return; }
+      adminStatus.innerHTML = `<span class="ok">✔</span> Admin geöffnet.`;
+      renderOrders();
+    });
+
+    function renderOrders() {
+      if (!isAdminAllowed()) { adminStatus.textContent = ADMIN_PASSWORD ? "Bitte Passwort eingeben." : ""; ordersBody.innerHTML = ""; return; }
+      const orders = loadOrders();
+      const q = (adminSearch.value || "").trim().toLowerCase();
+      const filtered = orders.filter(o => !q || (o.orderNumber + " " + o.name + " " + o.telefon).toLowerCase().includes(q));
+      adminStatus.innerHTML = `<span class="ok">✔</span> ${filtered.length} von ${orders.length} Bestellung(en).`;
+
+      ordersBody.innerHTML = filtered.map(o => `
+        <tr>
+          <td><b>${escapeHtml(o.orderNumber)}</b></td>
+          <td>${fmtDate(o.createdAt)}</td>
+          <td>
+            <select data-status="${escapeHtml(o.createdAt)}">
+              <option value="offen" ${o.status==="offen"?"selected":""}>offen</option>
+              <option value="bezahlt" ${o.status==="bezahlt"?"selected":""}>bezahlt</option>
+              <option value="erledigt" ${o.status==="erledigt"?"selected":""}>erledigt</option>
+            </select>
+          </td>
+          <td>${escapeHtml(o.zahlung)}</td>
+          <td>${escapeHtml(o.lieferart)}</td>
+          <td>${escapeHtml(String((o.items||[]).length))}</td>
+          <td><b>${escapeHtml(chf(o.total))}</b></td>
+          <td>${escapeHtml(o.name)}</td>
+          <td>${escapeHtml(o.telefon)}</td>
+          <td><button class="danger" data-del="${escapeHtml(o.createdAt)}">Löschen</button></td>
+        </tr>
+      `).join("");
+
+      [...ordersBody.querySelectorAll("button[data-del]")].forEach(btn => btn.addEventListener("click", () => {
+        const key = btn.getAttribute("data-del");
+        const all = loadOrders();
+        saveOrders(all.filter(x => x.createdAt !== key));
+        renderOrders();
+      }));
+
+      [...ordersBody.querySelectorAll("select[data-status]")].forEach(sel => sel.addEventListener("change", () => {
+        const key = sel.getAttribute("data-status");
+        const all = loadOrders();
+        const idx = all.findIndex(x => x.createdAt === key);
+        if (idx >= 0) { all[idx].status = sel.value; saveOrders(all); }
+      }));
+    }
+    adminSearch.addEventListener("input", renderOrders);
+
+    el("btnClear").addEventListener("click", () => {
+      if (!isAdminAllowed()) { adminStatus.textContent = "Nicht erlaubt."; return; }
+      if (!confirm("Wirklich ALLE Bestellungen löschen?")) return;
+      saveOrders([]); renderOrders();
+    });
+
+    el("btnExportCsv").addEventListener("click", () => {
+      if (!isAdminAllowed()) { adminStatus.textContent = "Nicht erlaubt."; return; }
+      const orders = loadOrders();
+      const header = ["orderNumber","createdAt","status","zahlung","lieferart","total","name","telefon","email","adresse","notiz","items"];
+      const rows = orders.map(o => {
+        const row = {
+          ...o,
+          items: (o.items||[]).map(it => `${it.qty}x ${it.produkt} ${it.farbe} ${it.groesse} | ${it.template}` + (it.uploadName?` [Upload:${it.uploadName}]`:"") + (it.druckNotiz?` [Druck:${it.druckNotiz}]`:"")).join(" | ")
+        };
+        return header.map(k => escapeCsv(row[k])).join(";");
+      });
+      const csv = header.join(";") + "\n" + rows.join("\n");
+      const blob = new Blob([csv], {type:"text/csv;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a"); a.href=url; a.download="bestellungen.csv";
+      document.body.appendChild(a); a.click(); a.remove(); URL.revokeObjectURL(url);
+      adminStatus.innerHTML = `<span class="ok">✔</span> CSV exportiert.`;
+    });
+
+    
+    // Filter chips
+    const filterChips = [...document.querySelectorAll("button.chip[data-filter]")];
+    function setFilter(kind){
+      filterChips.forEach(b => b.classList.toggle("active", b.dataset.filter === kind));
+      [...gallery.querySelectorAll(".product-card")].forEach(card => {
+        const ok = (kind === "all") || (card.dataset.kind === kind);
+        card.style.display = ok ? "" : "none";
+      });
+    }
+    filterChips.forEach(b => b.addEventListener("click", () => setFilter(b.dataset.filter)));
+    setFilter("all");
+
+
+    // Init
+    updateAddressVisibility();
+    selectProduct("T-Shirt Normal","Schwarz");
+    syncGallerySelectionFromDropdowns();
+    renderCart();
+  </script>
+</body>
+</html>
